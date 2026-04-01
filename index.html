@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de los panas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --surface: #111318;
+    --surface2: #181b22;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e9ef;
+    --muted: #6b7280;
+    --accent: #c89b3c;
+    --accent2: #785a28;
+
+    --challenger: #f0e6d3;
+    --grandmaster: #ef4444;
+    --master: #a78bfa;
+    --diamond: #60a5fa;
+    --emerald: #34d399;
+    --platinum: #2dd4bf;
+    --gold: #fbbf24;
+    --silver: #9ca3af;
+    --bronze: #cd7f32;
+    --iron: #8b7355;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 4rem;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(200,155,60,0.05) 0%, transparent 100%);
+  }
+
+  .hero-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .btn-refresh {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 22px;
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-refresh:hover { background: rgba(200,155,60,0.1); border-color: var(--accent); }
+  .btn-refresh:active { transform: scale(0.97); }
+  .btn-refresh:disabled { opacity: 0.4; cursor: default; }
+
+  .status {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1rem 0;
+  }
+
+  .section-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .ranking { display: flex; flex-direction: column; gap: 6px; }
+
+  .card {
+    display: grid;
+    grid-template-columns: 42px 52px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .card:hover { background: var(--surface2); border-color: var(--border2); }
+
+  .card.pos-1::before { background: var(--gold); }
+  .card.pos-2::before { background: var(--silver); }
+  .card.pos-3::before { background: var(--bronze); }
+
+  .pos {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1;
+  }
+  .pos-1 .pos { color: var(--gold); }
+  .pos-2 .pos { color: var(--silver); }
+  .pos-3 .pos { color: var(--bronze); }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    object-fit: cover;
+    background: var(--surface2);
+  }
+  .avatar-ph {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .info { min-width: 0; }
+  .summoner-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+  .summoner-tag {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .summoner-level {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .stats { text-align: right; white-space: nowrap; }
+  .tier-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .lp {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .wr {
+    font-size: 11px;
+    margin-top: 3px;
+  }
+  .wr-good { color: #34d399; }
+  .wr-ok { color: var(--muted); }
+  .wr-bad { color: #f87171; }
+
+  .unranked {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .err-chip {
+    font-size: 11px;
+    color: #f87171;
+    background: rgba(248,113,113,0.1);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .skeleton-card {
+    height: 72px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .skeleton-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+  @media (max-width: 500px) {
+    .card { grid-template-columns: 30px 44px 1fr auto; gap: 10px; padding: 10px 12px; }
+    .avatar, .avatar-ph { width: 40px; height: 40px; }
+    .summoner-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">EUW · Solo / Duo</div>
+  <h1>Ranking de <span>los panas</span></h1>
+  <p class="hero-sub">League of Legends · Temporada 2025</p>
+  <div class="controls">
+    <button class="btn-refresh" id="btn" onclick="loadAll()">↻ Actualizar</button>
+    <span class="status" id="status">—</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="section-label">Clasificación solo/duo</div>
+  <div class="ranking" id="ranking"></div>
+</div>
+
+<script>
+const PLAYERS = [
+  { name: 'Kr Kevin Roldan', tag: 'EUW' },
+  { name: 'rACKSTAR', tag: 'EUW' },
+  { name: '16 01 98', tag: 'CHAMA' },
+  { name: 'Borras', tag: 'EUW' },
+  { name: 'MrPangoX', tag: 'EUW' },
+  { name: 'King Heeft', tag: 'EUW' },
+  { name: 'pelaospavotti', tag: 'pel' },
+  { name: 'Andy Killer', tag: '2967' },
+  { name: 'TruenoDorado7', tag: 'EUW' },
+  { name: '22cm181cm79kg', tag: '3431' },
+  { name: 'Odin Skywalker', tag: 'EUW' },
+];
+
+const TIER_ORDER = {CHALLENGER:9,GRANDMASTER:8,MASTER:7,DIAMOND:6,EMERALD:5,PLATINUM:4,GOLD:3,SILVER:2,BRONZE:1,IRON:0};
+const DIV_ORDER = {I:4,II:3,III:2,IV:1};
+const TIER_COLORS = {
+  CHALLENGER:'#f0e6d3',GRANDMASTER:'#ef4444',MASTER:'#a78bfa',
+  DIAMOND:'#60a5fa',EMERALD:'#34d399',PLATINUM:'#2dd4bf',
+  GOLD:'#fbbf24',SILVER:'#9ca3af',BRONZE:'#cd7f32',IRON:'#8b7355'
+};
+
+function rankScore(solo) {
+  if (!solo) return -1;
+  return (TIER_ORDER[solo.tier]??-1)*10000 + (DIV_ORDER[solo.rank]??0)*400 + (solo.leaguePoints??0);
+}
+
+async function fetchPlayer(p) {
+  try {
+    const res = await fetch(`/api/riot?name=${encodeURIComponent(p.name)}&tag=${encodeURIComponent(p.tag)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    return { ...p, ...data, error: null };
+  } catch(e) {
+    return { ...p, error: e.message };
+  }
+}
+
+function tierLabel(tier, rank) {
+  if (!tier) return '';
+  if (['CHALLENGER','GRANDMASTER','MASTER'].includes(tier)) {
+    return tier.charAt(0) + tier.slice(1).toLowerCase();
+  }
+  return tier.charAt(0) + tier.slice(1).toLowerCase() + ' ' + rank;
+}
+
+function buildCard(p, pos) {
+  const card = document.createElement('div');
+  card.className = 'card' + (pos <= 3 ? ` pos-${pos}` : '');
+
+  const posEl = document.createElement('div');
+  posEl.className = 'pos';
+  posEl.textContent = pos;
+
+  const avatarWrap = document.createElement('div');
+  if (p.profileIconId != null && !p.error) {
+    const img = document.createElement('img');
+    img.className = 'avatar';
+    img.src = `https://ddragon.leagueoflegends.com/cdn/15.8.1/img/profileicon/${p.profileIconId}.png`;
+    img.alt = '';
+    img.onerror = () => img.replaceWith(makePH(p.name));
+    avatarWrap.appendChild(img);
+  } else {
+    avatarWrap.appendChild(makePH(p.name));
+  }
+
+  const info = document.createElement('div');
+  info.className = 'info';
+  info.innerHTML = `
+    <div class="summoner-name">${p.name}</div>
+    <div class="summoner-tag">#${p.tag}</div>
+    ${p.summonerLevel ? `<div class="summoner-level">Nivel ${p.summonerLevel}</div>` : ''}
+  `;
+
+  const stats = document.createElement('div');
+  stats.className = 'stats';
+
+  if (p.error) {
+    stats.innerHTML = `<div class="err-chip">Sin datos</div>`;
+  } else if (p.solo) {
+    const s = p.solo;
+    const total = s.wins + s.losses;
+    const wr = total > 0 ? Math.round(s.wins / total * 100) : 0;
+    const wrClass = wr >= 55 ? 'wr-good' : wr < 47 ? 'wr-bad' : 'wr-ok';
+    stats.innerHTML = `
+      <div class="tier-name" style="color:${TIER_COLORS[s.tier]||'#e8e9ef'}">${tierLabel(s.tier, s.rank)}</div>
+      <div class="lp">${s.leaguePoints} LP</div>
+      <div class="wr ${wrClass}">${wr}% WR · ${total} partidas</div>
+    `;
+  } else {
+    stats.innerHTML = `<div class="unranked">Sin rango</div>`;
+  }
+
+  card.append(posEl, avatarWrap, info, stats);
+  return card;
+}
+
+function makePH(name) {
+  const d = document.createElement('div');
+  d.className = 'avatar-ph';
+  d.textContent = name.slice(0,2).toUpperCase();
+  return d;
+}
+
+function showSkeletons() {
+  const el = document.getElementById('ranking');
+  el.innerHTML = '';
+  for (let i = 0; i < 11; i++) {
+    const s = document.createElement('div');
+    s.className = 'skeleton-card';
+    el.appendChild(s);
+  }
+}
+
+async function loadAll() {
+  const btn = document.getElementById('btn');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  showSkeletons();
+  status.textContent = 'Cargando...';
+
+  const results = await Promise.all(PLAYERS.map(fetchPlayer));
+
+  results.sort((a, b) => {
+    if (a.error && b.error) return 0;
+    if (a.error) return 1;
+    if (b.error) return -1;
+    return rankScore(b.solo) - rankScore(a.solo);
+  });
+
+  const el = document.getElementById('ranking');
+  el.innerHTML = '';
+  results.forEach((p, i) => el.appendChild(buildCard(p, i + 1)));
+
+  const now = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+  const errors = results.filter(r => r.error).length;
+  status.textContent = `Actualizado ${now}${errors ? ` · ${errors} error(es)` : ''}`;
+  btn.disabled = false;
+}
+
+loadAll();
+</script>
+</body>
+</html>
